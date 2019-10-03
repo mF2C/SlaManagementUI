@@ -54,6 +54,6 @@ var CimiAPI = (baseurl, auth) => {
     }
 }
 
-module.exports = {
+export {
     CimiAPI
 }

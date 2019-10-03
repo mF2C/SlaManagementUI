@@ -1,4 +1,34 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# SLA Management UI
+
+UI for the mF2C SLA Management component.
+
+## Description
+
+The UI shows the following information:
+
+* (in progress)
+
+The SLA Management UI is a React application that depends on CIMI to obtain the information about ServiceInstances, Agreements, Violations... The connection with CIMI is done through an Nginx, used both in development and production.
+
+## Development
+
+The following steps may be used for development.
+
+1. Execute `npm start`. 
+
+   The React application is now running on http://localhost:3000.
+
+2. Execute `./start.sh`. 
+   
+   This starts an Nginx container (configuration in `resources/default.conf.dev`) that expects the React application running at http://172.17.0.1:3000 and a CIMI server (or an SSH tunnel to it) at http://172.17.0.1:10443. 
+   
+   **NOTE**: Check the IP to access the local host from the container, and modify `default.conf.dev` if needed.
+
+3. You can now develop locally and see the changes immediately at [http://localhost:8000](http://localhost:8000)
+
+## Production
+
+
 
 ## Available Scripts
 
@@ -27,42 +57,8 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Credits
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

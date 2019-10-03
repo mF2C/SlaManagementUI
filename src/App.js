@@ -1,6 +1,7 @@
 import React from 'react';
-import logo from './logo.svg';
+import logo, { ReactComponent } from './logo.svg';
 import './App.css';
+import { tsConstructorType } from '@babel/types';
 
 const cimi = require('./cimi')
 
@@ -12,23 +13,20 @@ class ServiceInstancesTable extends React.Component {
     super(props);
     this.state = { instances: [] }
   }
-  async componentDidMount() {
-    var r = await this.props.fetch()
-    console.log(r)
-    this.setState( (state, props) => {
-      return { instances : r.serviceInstances }
-    })
-  }
   render() {
     return(
       <div>
         <p>Instances</p>
         <table>
-          {this.state.instances.map(item => (
-            <tr>
-              { item.id }
-            </tr>
-          ))}
+          <tbody>
+            {this.props.value.map(item => (
+              <tr key={item.id}>
+                <td>
+                  <button value={item.id} onClick={ (e) => this.props.onClick(e) }>{ item.id }</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>            
         </table>
       </div>
     )
@@ -42,55 +40,83 @@ class ViolationsTable extends React.Component {
   }
   componentDidMount() {
     this.setState( (state, props) => {
-      return { text: props.fetch() };
+      return { text: "" };
     })
   }
   render() {
     return (
       <div>
-        { this.props.location + this.state.text}
+        <p>Violations</p>
         <table>
-          {this.props.value.items.map(item => (
-            <tr>
-              <td>{item.id}</td>
-              <td>{item.datetime}</td>
-            </tr>
-          ))}
+          <tbody>
+            {this.props.value.map(item => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.datetime}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     );
   }
 }
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Connect to CIMI
-        </a>
-      </header>
-      <div>
-        <ServiceInstancesTable value={ {} } fetch={getServiceInstances} />
+class App extends React.Component {
+  
+  constructor(props) {
+    super(props);
+    this.state = { instances: [], violations: [], instancesMap: {} }
+  }
+  async componentDidMount() {
+    var r = await getServiceInstances()
+    console.log(r)
+    this.setState( (state, props) => {
+      return { 
+        instances : r.serviceInstances,
+        violations: [],
+        instancesMap: this.buildInstancesMap(r.serviceInstances)
+      }
+    })
+  }
+
+  buildInstancesMap(instances) {
+    return instances.reduce( (acc, curr) => {
+      acc[curr.id] = curr;
+      return acc;
+    }, {});
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <div>
+          <ServiceInstancesTable value={this.state.instances} onClick={(e) => this.handleClick(e)} />
+        </div>
+        <div>
+          <ViolationsTable value={this.state.violations} />
+        </div>
       </div>
-      <div>
-        <ViolationsTable value={{items: getViolations() }} fetch={hello}/>
-      </div>
-    </div>
-  );
+    );
+  }
+
+  async handleClick(e) {
+    const id = e.target.value;
+    const instance = this.state.instancesMap[id]
+    console.log("Loading violations. si = " + id)
+    var vs = await getViolations(instance);
+    this.setState( (state, props) => {
+      return {
+        instances: state.instances,
+        instancesMap: state.instancesMap,
+        violations: vs
+      }
+    });
+  }
 }
 
-function getViolations() {
-  return [ { id: 1, datetime: "2019-01-02" }, { id: 2, datetime: "2019-12-31"}];
+function getDummyViolations(si) {
+  return [ { id: si + "-1", datetime: "2019-01-02" }, { id: si + "-2", datetime: "2019-12-31"}];
 }
 
 function hello() {
@@ -99,6 +125,10 @@ function hello() {
 
 async function getServiceInstances() {
   return api.get('service-instance')
+}
+
+async function getViolations(serviceInstance) {
+  return api.violations(`$filter=(agreement_id/href="${serviceInstance.agreement}")`)
 }
 
 export default App;

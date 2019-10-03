@@ -1,0 +1,15 @@
+server {
+    listen 8000;
+
+    root /opt/app;
+
+    location /cimi/ {
+        proxy_pass         https://cimi/;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+}
+
