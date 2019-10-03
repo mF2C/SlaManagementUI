@@ -8,7 +8,7 @@ The UI shows the following information:
 
 * (in progress)
 
-The SLA Management UI is a React application that depends on CIMI to obtain the information about ServiceInstances, Agreements, Violations... The connection with CIMI is done through an Nginx, used both in development and production.
+The SLA Management UI is a React application that depends on CIMI to obtain the information about ServiceInstances, Agreements, Violations... The connection to CIMI is done through an Nginx, used both in development and production.
 
 ## Development
 
@@ -28,7 +28,19 @@ The following steps may be used for development.
 
 ## Production
 
+To build the Docker container: 
 
+    ./build.sh <version>
+    
+This executes `npm run build` and then builds the image `mf2c/sla-ui:<version>`.
+
+The container is intended to be executed inside the [mF2C docker-compose](https://github.com/mF2C/mF2C/blob/master/docker-compose/docker-compose.yml) and expects a CIMI server running at `https://cimi`.
+
+To execute the container in standalone mode:
+
+    docker run -p 8000:8000 --add-host cimi:172.17.0.1 --name slaui mf2c/sla-ui:0.6
+
+This expects the CIMI server is available at the local host in port 443.
 
 ## Available Scripts
 
