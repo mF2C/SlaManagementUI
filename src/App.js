@@ -6,7 +6,7 @@ import { tsConstructorType } from '@babel/types';
 const cimi = require('./cimi')
 
 
-var api = cimi.CimiAPI("/cimi/api");
+var api = cimi.CimiAPI("/api");
 
 class ServiceInstancesTable extends React.Component {
   constructor(props) {

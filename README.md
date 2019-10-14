@@ -34,13 +34,14 @@ To build the Docker container:
     
 This executes `npm run build` and then builds the image `mf2c/sla-ui:<version>`.
 
-The container is intended to be executed inside the [mF2C docker-compose](https://github.com/mF2C/mF2C/blob/master/docker-compose/docker-compose.yml) and expects a CIMI server running at `https://cimi`.
+The container is intended to be executed inside the [mF2C docker-compose](https://github.com/mF2C/mF2C/blob/master/docker-compose/docker-compose.yml) and expects a CIMI server running at `https://proxy/api/`.
 
 To execute the container in standalone mode:
 
-    docker run -p 8000:8000 --add-host cimi:172.17.0.1 --name slaui mf2c/sla-ui:0.6
-
-This expects the CIMI server is available at the local host in port 443.
+    docker run -p 8000:8000 --add-host proxy:172.17.0.1 -e PROXY=https://proxy:10443/api/ --name slaui mf2c/sla-ui:0.6
+    
+This expects the CIMI server is available at the local host in port 10443.
+The CIMI server URL can be modified using the env var `PROXY`. The PROXY URL must end with a '/'.
 
 ## Available Scripts
 

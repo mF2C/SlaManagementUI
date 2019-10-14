@@ -1,14 +1,14 @@
 server {
     listen 8000;
 
-    root /opt/app;
+    root /opt;
 
-    location /cimi/ {
-        proxy_pass         https://cimi/;
+    location /api/ {
+        proxy_pass         ${PROXY};
     }
 
-    location / {
-        try_files $uri /index.html;
+    location /sla/ {
+        try_files $uri /sla/index.html;
     }
 
 }
