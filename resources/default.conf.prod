@@ -7,7 +7,7 @@ server {
         proxy_pass         ${PROXY};
     }
 
-    location /sla/ {
+    location /sla {
         try_files $uri /sla/index.html;
     }
 
