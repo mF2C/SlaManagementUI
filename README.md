@@ -4,9 +4,19 @@ UI for the mF2C SLA Management component.
 
 ## Description
 
-The UI shows the following information:
+The UI has the following main capabilities:
 
-* (in progress)
+* create a SLA template;
+* retrieve templates;
+* retrieve agreements and violations of service executions.
+
+The UI allows to create templates, to be used when defining a service. 
+This way, an SLA will be created on each execution of a service. 
+
+The guarantees to be set on a template are:
+* availability(%)
+* execution time of an operation
+
 
 The SLA Management UI is a React application that depends on CIMI to obtain the information about ServiceInstances, Agreements, Violations... The connection to CIMI is done through an Nginx, used both in development and production.
 

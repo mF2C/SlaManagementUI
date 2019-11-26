@@ -1,278 +1,65 @@
 import React from 'react';
 import logo, { ReactComponent } from './logo.svg';
-import './App.css';
 import { tsConstructorType } from '@babel/types';
+import { Navbar, Nav } from 'react-bootstrap';
+import {
+  Route,
+  HashRouter
+} from "react-router-dom";
 
-const cimi = require('./cimi')
+import Home from "./Home";
+import Agreements from "./Agreements";
+import NewTemplate from "./NewTemplate";
+import Templates from "./Templates";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
-var api = cimi.CimiAPI("/api");
-
-var EMPTY_AGREEMENT = {
-  id: "DEFAULT",
-  details: {
-    name: "",
-    client: {
-      name: "",
-    },
-    provider: {
-      name: "",
-    },
-    guarantees: []
-  }
-}
-var ALL_SERVICEINSTANCE = {}
-
-class ServiceInstancesTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { 
-      instances: [],
-      agreements: {}
-    }
-  }
-  render() {
-    return(
-      <div>
-        <h2>Instances</h2>
-        <table>
-          <thead>
-            <tr>
-              <td>Id</td>
-              <td>Client</td>
-              <td>Service Name</td>
-              <td>Type</td>
-              <td>#Violations</td>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.value.instances.map(item => (
-              <tr key={item.id}>
-                <td>
-                  <button value={item.id} onClick={ (e) => this.props.onClick(e) }>
-                    { item.id.split('-').pop() }
-                  </button>
-                </td>
-                <td>{this.getAgreement(item.agreement).details.client.name}</td>
-                <td>{this.getAgreement(item.agreement).details.name}</td>
-                <td>{ this.getType(item) }</td>
-                <td>{ this.props.value.nViolations[item.id] }</td>
-              </tr>
-            ))}
-          </tbody>            
-        </table>
-      </div>
-    )
-  }
-  getAgreement(id) {
-    var a = this.props.value.agreementsMap[id];
-    return a === undefined? EMPTY_AGREEMENT : a;
-  }
-
-  getType(si) {
-    return si.service_type;
-  }
-
-}
-
-class AgreementInfo extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = EMPTY_AGREEMENT 
-  }
-
-  render() {
-    let a = this.props.value;
-    let visible = a.id !== EMPTY_AGREEMENT.id;
-    return (
-      <div style={{display: visible? 'block': 'none'}}>
-        <h2>Agreement</h2>
-        <ul>
-          <li><label>Client:</label>{a.details.client.name}</li>
-          <li><label>Provider:</label>{a.details.provider.name}</li>
-        </ul>
-        <h3>Guarantees</h3>
-        <table>
-          <thead>
-            <tr>
-              <td>Name</td>
-              <td>Constraint</td>
-            </tr>
-          </thead>
-          <tbody>
-            {a.details.guarantees.map(item => (
-              <tr key={item.name}>
-                <td>{item.name}</td>
-                <td>{item.constraint}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-}
-
-class ViolationsTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { text: "" }
-  }
-  componentDidMount() {
-    this.setState( (state, props) => {
-      return { text: "" };
-    })
-  }
-  render() {
-    return (
-      <div>
-        <h2>Violations</h2>
-        <table>
-          <thead>
-            <tr>
-              <td>Date</td>
-              <td>Guarantee</td>
-              <td>Value</td>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.value.map(item => (
-              <tr key={item.id}>
-                <td>{this.formatDate(item.datetime)}</td>
-                <td>{item.guarantee}</td>
-                <td>{this.formatValue(item.values)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-
-  formatDate(s) {
-    return s;    
-  }
-
-  formatValue(values) {
-    return JSON.stringify(values);
-  }
-}
 
 class App extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state = { 
-      instances: [], 
-      agreements: [],
-      agreement: EMPTY_AGREEMENT,
-      violations: [], 
-      instancesMap: {},
-      agreementsMap: {}
-    }
-  }
-  async componentDidMount() {
-    var r = await getServiceInstances()
-    var a = await getAgreements()
-    var nViolations = await this.buildNViolations(r.serviceInstances)
-    console.log(r)
-    this.setState( (state, props) => {
-      return { 
-        instances : r.serviceInstances,
-        agreements : r.agreements,
-        agreement: EMPTY_AGREEMENT,
-        violations: [],
-        nViolations: nViolations,
-        instancesMap: this.buildInstancesMap(r.serviceInstances),
-        agreementsMap: this.buildAgreementsMap(a.agreements)
-      }
-    })
-  }
-
-  buildInstancesMap(instances) {
-    return instances.reduce( (acc, curr) => {
-      acc[curr.id] = curr;
-      return acc;
-    }, {});
-  }
-
-  buildAgreementsMap(agreements) {
-    var d = {}
-    d[EMPTY_AGREEMENT.id] = EMPTY_AGREEMENT;
-    return agreements.reduce ( (acc, curr) => {
-      acc[curr.id] = curr;
-      return acc;
-    }, d);
-  }
-
-  async buildNViolations(serviceInstances) {
-    var d = {};
-    for (var i = 0; i < serviceInstances.length; i++) {
-      var si = serviceInstances[i];
-      var vs = await getViolations(si);
-      d[si.id] = vs.length;
-    }
-    return d;
   }
 
   render() {
     return (
       <div className="App">
-        <div>
-          <ServiceInstancesTable value={this.state} onClick={(e) => this.handleClick(e)} />
-        </div>
-        <div>
-          <AgreementInfo value={this.state.agreement} />
-        </div>
-        <div>
-          <ViolationsTable value={this.state.violations} />
-        </div>
+        <HashRouter>
+
+          <Navbar style={{background: "#777777"}} expand="lg">
+            <Navbar.Brand href="/">
+              <img
+                src="img/mf2c_logo_mini.png"
+                width="45"
+                height="25"
+                className="d-inline-block align-top"
+                alt="SlaManagement UI"
+              />
+            </Navbar.Brand>
+
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="mr-auto">
+                <Nav.Link href="#new-template">New template</Nav.Link>
+                <Nav.Link href="#templates">Templates</Nav.Link>
+                <Nav.Link href="#agreements">Agreements</Nav.Link>
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+
+          <div className="content">
+            <Route exact path="/" component={Home}/>
+            <Route path="/agreements" component={Agreements}/>
+            <Route path="/templates" component={Templates}/>
+            <Route path="/new-template" component={NewTemplate}/>
+          </div>
+        </HashRouter>
+
       </div>
     );
   }
-
-  async handleClick(e) {
-    const id = e.target.value;
-    const instance = this.state.instancesMap[id]
-    console.log("Loading violations. si = " + id)
-    var vs = await getViolations(instance);
-    this.setState( (state, props) => {
-      return {
-        instances: state.instances,
-        instancesMap: state.instancesMap,
-        violations: vs,
-        agreement: this.getAgreement(instance.agreement)
-      }
-    });
-  }
-
-  getAgreement(id) {
-    let a = this.state.agreementsMap[id];
-    return a === undefined? EMPTY_AGREEMENT : a;
-  }
 }
 
-function getDummyViolations(si) {
-  return [ { id: si + "-1", datetime: "2019-01-02" }, { id: si + "-2", datetime: "2019-12-31"}];
-}
-
-function hello() {
-  return "Hello world";
-}
-
-async function getServiceInstances() {
-  return api.get('service-instance')
-}
-
-async function getViolations(serviceInstance) {
-  var vs = await api.violations(`$filter=(agreement_id/href="${serviceInstance.agreement}")`)    
-  // Removes incorrect violations when using stub CIMI server
-  vs = vs.filter( (item) => { return item.agreement_id.href === serviceInstance.agreement });
-  return vs;
-}
-
-async function getAgreements() {
-  return api.get('agreement')
-}
 
 export default App;

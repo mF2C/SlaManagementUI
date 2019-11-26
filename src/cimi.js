@@ -41,6 +41,15 @@ var CimiAPI = (baseurl, auth) => {
         return response.data;
     }
 
+    async function post(path, entity) {
+        let response = await cimi.post(path, entity);
+        if (response.status >= 400) {
+            let request = response.request;
+            throw new Error(`${response.status} ${response.statusText}: ${request.method} ${request.path}`)
+        }
+        return response.data;
+    }
+
     function path(name, query = "") {
         return `${name}?${query}`;
     }
@@ -48,6 +57,7 @@ var CimiAPI = (baseurl, auth) => {
     return {
         baseURL,
         get,
+        post,
         cloudEntryPoint,
         violations,
         agreements,
